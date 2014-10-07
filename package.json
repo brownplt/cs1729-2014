@@ -1,0 +1,12 @@
+{
+  "name": "cs1729",
+  "version": "0.0.0",
+  "description": "A course about compiling",
+  "dependencies": {
+    "pyret-lang": "git://github.com/brownplt/pyret-lang",
+    "mocha": "~1.21"
+  },
+  "scripts": {
+    "test": "make test"
+  }
+}
