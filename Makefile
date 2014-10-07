@@ -1,4 +1,4 @@
-PYRET = node pyret-lang/build/phase1/main-wrapper.js
+PYRET = node node_modules/pyret-lang/build/phase0/main-wrapper.js
 
 all: compile.arr.js make-tests.arr.js
 

@@ -1,0 +1,15 @@
+Support code for CS1729.
+
+To install, run:
+
+    npm install
+
+To test, run:
+
+    make test
+
+To run the tests without re-compiling the examples (say you just changed
+run-tests.js), run:
+
+    make run-tests
+
