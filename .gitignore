@@ -1,0 +1,5 @@
+*.swp
+*.core
+*.arr.js
+node_modules/
+
