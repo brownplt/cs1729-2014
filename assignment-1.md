@@ -43,46 +43,125 @@ Primitive values.  It's OK to represent these as their JavaScript equivalents.
     s-if-branch(_, test, body)
 ```
 
-Raises an error if any `test` evaluates to a non-boolean value.
+Runs `test`s in order, and runs the first `block` corresponding to a `test`
+that evaluates to `true`.  Raises an error if any `test` evaluates to a
+non-boolean value.
 
 ```
   { name: expr, ... }
 
   s-obj(_, fields :: List<Member>)
     s-data-field(_, name :: String, value :: Expr)
-    # don't need to handle mutable or method fields
+    # don't need to handle mutable or method fields, s-data-field is the only
+    # kind of Member
 ```
 
 Creates an object value that works with `s-dot` and `s-extend` below.
 
 ```
-  s-dot(_, obj, key)
+  expr.name
+
+  s-dot(_, obj :: Expr, key :: String)
 ```
 
+Evaluates `obj` to a value, raising an exception if the value isn't an object
+or a data value.  Looks up the value of the field `key`, raising an exception
+if the field isn't defined.
 
-  s-letrec(_, binds, body)
-    s-letrec-bind(_, bind, expr)
+```
+  expr.{ name: expr, ... }
 
-  s-let-expr(_, binds, body)
-    s-let-bind(_, bind, expr)
-    s-var-bind(_, bind, expr)
+  s-extend(_, obj :: Expr, fields :: List<Member>)
+```
 
-  s-bind(_, _, name, _)
+Evaluates `obj` to a value, raising an exception if the value isn't an object
+(it is an error to extend a data value).  Evaluates all the `expr`s in the
+fields to values, and creates a new object that has all the fields from the
+original object plus the extension.  Names from the fields override fields in
+the original object.
+
+```
+  x = 10
+  var y = 12
+  x + y
+
+  # desugars to (you will compile):
+
+  let x = 10,
+      var y = 12:
+    x + y
+  end
+
+  s-let-expr(_, binds :: LetBind, body :: Expr)
+    s-let-bind(_, bind :: Bind, expr :: Expr)
+    s-var-bind(_, bind :: Bind, expr :: Expr)
+
+  s-bind(_, _, name :: Name, _)
 
   s-id(_, name)
 
   s-id-var(_, name)
+```
+
+Binds the `name`s to the corresponding `expr`s as either variables or
+identifiers in the `body`.  Shadowing is allowed.  Variables can be updated
+with `s-assign` (below), and their uses will appear as `s-id-var`s.
+Identifiers cannot be updated, and their uses will appear as `s-id`s.
+
+An `s-bind` contains a `name`, which has a `to-compiled` method you can use to
+produce a unique string for that name.  This can be helpful to make sure that
+shadowed instances of variables produce difference eventual identifiers in
+compiled JavaScript.
+
+```
+  x := 10
+
+  s-assign(_, id :: Name, value :: Expr)
+```
+
+
+```
+  s-letrec(_, binds :: LetrecBind, body :: Expr)
+    s-letrec-bind(_, bind :: Bind, expr :: Expr)
 
   s-id-letrec(_, name)
-
-  s-assign(_, id, value)
-
-  s-op(_, op, left, right)
-
-  s-lam(_, _, args, ann, doc, body, tests)
-
-  s-extend(_, obj, fields)
 ```
+
+Binds the `name`s in the `bind`s to the corresponding values, but initializes
+them to undefined values first.  Uses of letrec-bound identifiers will appear
+as `s-id-letrec`s.  If an `s-id-letrec` is referenced in evaluation before it
+is initialized by the corresponding branch, a runtime exception should be
+raised.  For example, this should raise an exception:
+
+```
+letrec f = f: f end
+```
+
+```
+  x + y
+  4 < 5
+  5 - 4 - 3
+
+  s-op(_, op :: String, left :: Expr, right :: Expr)
+```
+
+Evaluates `left` and `right` to values.  You need to handle these operators:
+
+- `+`: Concatenates strings and adds numbers, raises an error otherwise
+- `-`, `*`, `/`: Perform the corresponding floating-point arithmetic on numbers
+- `<`, `>`, `<=`, `>=`: Compares strings and compares numbers, raises an error
+  otherwise
+- `==`: Performs structural equality, throws errors if it compares function
+  values
+- `<=>`: Performs reference equality, throws errors if it compares function
+  values
+
+
+```
+  s-lam(_, _, args :: List<Bind>, _, _, body, _)
+  s-app(_, _fun :: Expr, args :: List<Expr>) with:
+```
+
 
 ```
   s-data-expr(_, name, _, _, _, variants, _, _)
