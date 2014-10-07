@@ -11,3 +11,4 @@ test: all
 
 run-tests:
 	node node_modules/mocha/bin/mocha run-tests.js
+

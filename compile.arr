@@ -3,6 +3,10 @@ provide *
 import ast as A
 import "compiler/js-ast.arr" as J
 
+fun helper-app(name, args):
+  J.j-app(J.j-dot(J.j-id("$helpers"), name), args)
+end
+
 fun compile-expr(e :: A.Expr) -> J.JExpr:
   cases(A.Expr) e:
     | s-block(_, stmts) =>
@@ -56,7 +60,7 @@ fun compile-expr(e :: A.Expr) -> J.JExpr:
 
     | s-op(_, op, left, right) =>
       ask:
-        | op == "op+" then: J.j-binop(compile-expr(left), J.j-plus, compile-expr(right))
+        | op == "op-" then: helper-app("subtract", [list: compile-expr(left), compile-expr(right)])
         | otherwise: J.j-str("nyi: " + op)
       end
 

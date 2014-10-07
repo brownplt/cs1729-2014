@@ -35,7 +35,7 @@ for each(prog from good-progs):
     FL.display(desugarfile, to-compile.tosource().pretty(80).join-str("\n"))
 
     result = C.compile-expr(A.s-block(to-compile.l, [list: to-compile]))
-    wrapped = J.j-parens(J.j-fun([list:], J.j-block([list: J.j-return(result)])))
+    wrapped = J.j-parens(J.j-fun([list: "$globals", "$helpers"], J.j-block([list: J.j-return(result)])))
     outfile = FL.open-output-file(filename + ".js", false)
     FL.display(outfile, wrapped.tosource().pretty(80).join-str("\n") + "\n")
     FL.close-output-file(outfile)

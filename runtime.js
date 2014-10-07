@@ -1,4 +1,4 @@
-function makeHelpers() {
+function makeRuntime() {
   function typeMismatch(expectedType, value) {
     return {
       type: "type-mismatch",
@@ -8,7 +8,7 @@ function makeHelpers() {
   }
 
   function checkNumber(arg) {
-    if(typeof arg === "number") {
+    if(typeof arg !== "number") {
       throw typeMismatch("Number", arg);
     }
   }
@@ -20,10 +20,11 @@ function makeHelpers() {
   }
 
   return {
-    subtract: subtract
+    helpers: {
+      subtract: subtract
+    }
   }
 }
 
-module.exports = {
-  makeHelpers: makeHelpers  
-};
+exports.makeRuntime = makeRuntime;
+
