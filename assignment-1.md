@@ -12,10 +12,16 @@ Pyret, if you need to refer to them, they are at
 https://github.com/brownplt/pyret-lang/blob/master/src/arr/trove/ast.arr and
 https://github.com/brownplt/pyret-lang/blob/master/src/arr/compiler/js-ast.arr.
 
-You will compile the expression forms below from the Pyret AST to JavaScript
-AST expressions.  There are underscores in place of fields that your
-compilation doesn't need to deal with.  Each form comes with a few examples to
-remind you what the surface syntax does.
+## Logistics
+
+This assignment is due by 11:59pm on Tuesday, October 21.  Details of how to
+hand in will be posted here closer to the deadline.
+
+Ask for any clarifications and JavaScript or Pyret questions directly to the
+Google Group.  If your question is more than a clarification and includes
+implementation details for your work, please send it directly to
+`joe@cs.brown.edu`, and it will get forwarded to the list if it's generally
+useful information, or just responded to if it's student-specific.
 
 ## Code Layout
 
@@ -25,6 +31,15 @@ it with
     git clone https://github.com/brownplt/cs1729-2014
 
 Also feel free to fork it to your own Github account if you prefer.
+
+To get things set up, run:
+
+    npm install
+
+From the root of the checkout.  This has been tested on department machines; to
+run it on your own you'll need to install NodeJS, following your OS's
+instructions (for what it's worth, I do most of my Pyret development on
+department machines and it works out well).
 
 You will edit three files for this assignment:
 
@@ -78,7 +93,7 @@ the Pyret desugarer.  For each ".arr" file, there will be two output files: a
 to your code, and a ".arr.js" file, which contains the output of your compiler
 on the desugared AST.
 
-After compiling all the files, `make test` runs the `run-tests` script.  The
+After compiling all the files, `make test` runs the `run-tests.js` script.  The
 top of this script contains an array of tests that you should add to in order
 to test your compiler.  There are two kinds of tests, one for errors and one
 for successful runs:
@@ -111,10 +126,18 @@ test it with:
   }
 ```
 
+If you just add tests and want to run them without recompiling everything, you
+can run
+
+    make run-tests
+
+which runs `run-tests.js` without recompiling.
+
+
 ## Differences from Pyret
 
-There are a few differences between what you will produce and real Pyret, aside
-from only implementing a subset.
+There are a few differences between what you will produce and full Pyret (aside
+from only implementing a subset).
 
 ### Errors
 
@@ -135,6 +158,12 @@ You can ignore all annotations checking in this assignment, so treat arguments
 to functions, let-bindings, etc as completely untyped.
 
 ## Expressions and Descriptions
+
+You will compile the expression forms below from the Pyret AST to JavaScript
+AST expressions.  There are underscores in place of fields that your
+compilation doesn't need to deal with.  Each form comes with a few examples to
+remind you what the surface syntax does.
+
 
 ```
   s-block(_, exprs)
