@@ -24,6 +24,12 @@ var specs = [
     }
   },
   {
+    name: "cases.arr",
+    val: function(val) {
+      assert.equal(val, "empty");
+    }
+  },
+  {
     name: "subtract.arr",
     val: function(val) {
       assert.equal(val, 5);
@@ -39,7 +45,19 @@ var specs = [
 
 
 describe("Compiler", function() {
+  var specDict = {};
   specs.forEach(function(s) {
+    specDict[s.name] = s;
+  });
+  fs.readdirSync("tests/").forEach(function(path) {
+    if(path.slice(path.length - 4) !== ".arr") { return; }
+    var s = specDict[path];
+    if(typeof s === "undefined") {
+      it(path, function() {
+        throw new Error("No test spec specified for test file " + path);
+      });
+      return;
+    }
     it(s.name, function() {
       var evalFun = eval;
       var thisRuntime = runtime.makeRuntime();
