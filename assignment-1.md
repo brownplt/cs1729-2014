@@ -1,9 +1,10 @@
 # Assignment 1
 
 Your task is to compile the subset of the Pyret ast in `compile.arr` to
-JavaScript.  The compiled behavior should be the same as Pyret (with a few
-exceptions noted below).  So, if you're not sure what a particular example
-should do, run it in Pyret and that's the answer!
+JavaScript, with help from a JavaScript runtime library that you will build up.
+The compiled behavior should be the same as Pyret (with a few exceptions noted
+below).  So, if you're not sure what a particular example should do, run it in
+Pyret and that's the answer!
 
 There are two AST types you need to know about for this assignment, the Pyret
 AST and the JavaScript AST you will be compiling to.  Both are defined within
@@ -11,15 +12,182 @@ Pyret, if you need to refer to them, they are at
 https://github.com/brownplt/pyret-lang/blob/master/src/arr/trove/ast.arr and
 https://github.com/brownplt/pyret-lang/blob/master/src/arr/compiler/js-ast.arr.
 
-You will compile the following forms from the Pyret AST.  There are underscores
-in place of fields that your compilation doesn't need to deal with.  Each form
-comes with a few examples.
+You will compile the expression forms below from the Pyret AST to JavaScript
+AST expressions.  There are underscores in place of fields that your
+compilation doesn't need to deal with.  Each form comes with a few examples to
+remind you what the surface syntax does.
+
+## Code Layout
+
+The support code is at https://github.com/brownplt/cs1729-2014.  You can clone
+it with
+
+    git clone https://github.com/brownplt/cs1729-2014
+
+Also feel free to fork it to your own Github account if you prefer.
+
+You will edit three files for this assignment:
+
+    compile.arr
+    runtime.js
+    run-tests.js
+
+### The Compiler
+
+The compiler takes a Pyret expression from the subset below and builds a
+JavaScript expression out of it.  There are a few examples in that file for
+handling blocks and subtraction as a binary operator.
+
+Note that the subtraction case creates expressions that look like:
+
+    $helpers.subtract(<expr1>, <expr2>)
+
+Whatever expression you generate will be wrapped in the following:
+
+```
+function($helpers) {
+  return <your-compiled-expression>
+}
+```
+
+The testing and running infrastructure will ensure that the `$helpers` argument
+is the helper functions defined in `runtime.js`, described next.
+
+### The Runtime
+
+It is often useful to consolidate repeated computation or operations over a
+representation into library functions (for example, checking the arguments to
+"+").  To this end, your compiled output is given access to a *runtime*, which
+in this case is a set of helper functions that you can compile calls into.
+
+You can write plain JavaScript code into `runtime.js`, and add functions to the
+`helpers` object that is exported from `makeRuntime` to make them available to
+compiled code.  The provided `runtime.js` contains an example of checking the
+arguments to subtract for being numeric, and raising an error if they aren't.
+
+It will probably be useful to define functions that test types, manipulate
+representations of objects and data values, and implement the binary operators
+in the runtime.  This will make your compiled code cleaner and more manageable.
+
+### Testing with `run-tests`
+
+Tests are written as ".arr" files in the `tests/` directory.  When you run
+`make test`, they are run through your compiler after being run through part of
+the Pyret desugarer.  For each ".arr" file, there will be two output files: a
+".core" file that shows how Pyret desugared the program before handing it off
+to your code, and a ".arr.js" file, which contains the output of your compiler
+on the desugared AST.
+
+After compiling all the files, `make test` runs the `run-tests` script.  The
+top of this script contains an array of tests that you should add to in order
+to test your compiler.  There are two kinds of tests, one for errors and one
+for successful runs:
+
+```
+  {
+    name: "number.arr",
+    val: function(v) {
+      assert.equal(v, 5);
+    }
+  }
+```
+
+This test runs the compiled output of "number.arr", and passes the result to
+the supplied function as `v`.  The testing library is Mocha with Node's assert
+module (http://visionmedia.github.io/mocha/,
+http://nodejs.org/api/assert.html); you should really only need the
+documentation for Node's assert to write your tests.
+
+For tests that should raise errors, you can add a test with an `exn`
+callback.  For example, if "bad-subtract.arr" contains `5 - "5"`, we could
+test it with:
+
+```
+  {
+    name: "bad-subtract.arr",
+    exn: function(e) {
+      assert.equal(e.type, "type-mismatch");
+    }
+  }
+```
+
+## Differences from Pyret
+
+There are a few differences between what you will produce and real Pyret, aside
+from only implementing a subset.
+
+### Errors
+
+You do not have to produce the same error messages as Pyret, but you *do* have
+to produce meaningful errors.  For each kind of error you need, you should
+throw a JavaScript value similar to the example for "type-mismatch" in the
+provided `runtime.js`.  If Pyret produces an error, you should as well.
+
+## Bignums
+
+Pyret has exact integer and rational arithmetic.  You do not need to support
+this, and can use JavaScript numbers to represent Pyret numbers.
+
+### Annotations
+
+Many of the expressions you will compile have annotation positions in them.
+You can ignore all annotations checking in this assignment, so treat arguments
+to functions, let-bindings, etc as completely untyped.
+
+## Expressions and Descriptions
 
 ```
   s-block(_, exprs)
 ```
 
 Runs all the exprs and returns the value that the last one returned.
+
+One thing to note is the pattern used in the `s-block` case to compile an
+expression-based version of a block.  A Pyret block like the body of this
+function:
+
+```
+fun f(x):
+  when false: "skip" end
+  x + 1
+end
+```
+
+Evaluates to the value of the last expression in the block.  If we simply
+converted each expression to JavaScript and put it in a block, we'd get
+something like (this is probably much simpler than what your compilation will
+do):
+
+```
+var f = function(x) {
+  if(false) { "skip" }
+  x + 1;
+}
+```
+
+This function returns `undefined`; JavaScript requires that values are actually
+`return`ed explicitly.  So the block compilation uses an
+[iife](http://en.wikipedia.org/wiki/Immediately-invoked_function_expression),
+which looks like this:
+
+```
+var f = function(x) {
+  return (function() {
+      if(false) { "skip" }
+      return x + 1;
+    })();
+}
+```
+
+In order to:
+
+1. Make sure that the block can be used as an expression;
+2. Make sure that the last value in the block is returned.
+
+This kind of pattern, where there is a mismatch between the structure of Pyret
+and the structure of JavaScript, will come up often in this compilation, and
+part of your job on this assignment is to identify where that happens, and
+figure out how to deal with it.
 
 ```
   s-num(_, n)
@@ -58,6 +226,7 @@ Examples:
 
 ```
 { x: 5, y: 6 + 6 }
+{ }
 ```
 
 Creates an object value that works with `s-dot` and `s-extend` below.
@@ -70,6 +239,7 @@ Examples:
 
 ```
 o.x
+link(1, empty).first
 ```
 
 Evaluates `obj` to a value, raising an exception if the value isn't an object

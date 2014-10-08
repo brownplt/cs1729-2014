@@ -55,6 +55,8 @@ fun compile-expr(e :: A.Expr) -> J.JExpr:
     | s-if-else(_, branches, els) =>
       J.j-str("nyi: " + torepr(e))
 
+    | s-cases(_, typ, val, branches) =>
+      J.j-str("nyi: " + torepr(e))
     | s-cases-else(_, typ, val, branches) =>
       J.j-str("nyi: " + torepr(e))
 

@@ -28,6 +28,12 @@ var specs = [
     val: function(val) {
       assert.equal(val, 5);
     }
+  },
+  {
+    name: "bad-subtract.arr",
+    exn: function(e) {
+      assert.equal(e.type, "type-mismatch");
+    }
   }
 ];
 
@@ -40,7 +46,7 @@ describe("Compiler", function() {
       var compiled = evalFun("(" + String(fs.readFileSync("tests/" + s.name + ".js")) + ")");
       var answer;
       try {
-        var answer = compiled(thisRuntime.globals, thisRuntime.helpers);
+        answer = compiled(thisRuntime.helpers);
       } catch(e) {
         if(!s.exn) {
           throw {
