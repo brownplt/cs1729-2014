@@ -14,8 +14,13 @@ https://github.com/brownplt/pyret-lang/blob/master/src/arr/compiler/js-ast.arr.
 
 ## Logistics
 
-This assignment is due by 11:59pm on Tuesday, October 21.  Details of how to
-hand in will be posted here closer to the deadline.
+This assignment is due by 11:59pm on Tuesday, October 21.
+
+Grading will be done via in-person code reviews; you will schedule a half hour
+meeting on October 22-24, and you'll be asked questions about the behavior of
+your compiler.  For example, you might be asked how you'd have to adapt it to
+correctly handle a change in Pyret, or how a change to code in your compiler or
+runtime would change the semantics of Pyret.
 
 Ask for any clarifications and JavaScript or Pyret questions directly to the
 Google Group.  If your question is more than a clarification and includes
