@@ -4,7 +4,8 @@
   "description": "A course about compiling",
   "dependencies": {
     "pyret-lang": "git://github.com/brownplt/pyret-lang",
-    "mocha": "~1.21"
+    "mocha": "~1.21",
+    "es6-collections": "^0.3.4"
   },
   "scripts": {
     "test": "make test"
