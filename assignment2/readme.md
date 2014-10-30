@@ -12,6 +12,8 @@ like to have two deadlines: one next Thursday (Nov 6), and another the
 following Tuesday again (Nov 11), so we can do review and then do fixes.  This
 still leaves a month for projects, so the timing will work out well.
 
+Get started and ask questions early!
+
 
 ## Supported operations
 
@@ -90,9 +92,17 @@ that means you're all set (that's just complaining because it's a module, not a
 standalone file).  But if it says anything else, it's probably a syntax error
 in the JS.
 
+The string-dict library solves a number of the same problems as this library,
+and is a good source of examples.  See 
+
+https://github.com/brownplt/pyret-lang/blob/e2b5568cb30b5a82b27f62918f76a9ef84e4cc55/src/js/trove/string-dict.js
+
+for some examples of the uses of the APIs below.
+
 ## Interfaces to Use
 
-The interfaces below are _JavaScript_ interfaces
+The interfaces below are _JavaScript_ interfaces to the Pyret runtime that you
+should use.
 
 ```
 runtime
@@ -164,6 +174,29 @@ runtime
     .makeList
 
         Takes a JavaScript array and creates a list
+
+    .throwMessageException
+
+        Takes a JavaScript string and raises it as a Pyret exception.  You can
+        use this for any error cases you need to handle that aren't covered by
+        the check* functions.
+
+    .checkArity
+
+        Takes a number, an arguments object, and a function name, and checks
+        that the arguments object has the correct arity based on the number.
+        If not, reports an arity-mismatch error with the given function name. 
+
+    .notEqual
+
+        The "NotEqual" constructor in equality.  You will need this to
+        implement _equals.
+
+    .equal
+
+        The "equal" singleton in equality.  You will need this to implement
+        equals. 
+
 
 pick
 
